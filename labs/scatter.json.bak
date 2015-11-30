@@ -1,0 +1,56 @@
+{
+    "type" : "scatter",
+    "tooltip" : {
+        "trigger": "axis",
+        "showDelay" : 0,
+        "axisPointer":{
+            "show": true,
+            "type" : "cross",
+            "lineStyle": {
+                "type" : "dashed",
+                "width" : 1
+            }
+        }
+    },
+    "legend": {
+        "data":["scatter1","scatter2"]
+    },
+    "toolbox": {
+        "show" : true,
+        "feature" : {
+            "mark" : {"show": true},
+            "dataZoom" : {"show": true},
+            "dataView" : {"show": true, "readOnly": false},
+            "restore" : {"show": true},
+            "saveAsImage" : {"show": true}
+        }
+    },
+    "xAxis" : [
+        {
+            "type" : "value",
+            "splitNumber": 4,
+            "scale": true
+        }
+    ],
+    "yAxis" : [
+        {
+            "type" : "value",
+            "splitNumber": 4,
+            "scale": true
+        }
+    ],
+    "series" : [
+        {
+            "name":"scatter1",
+            "type":"scatter",
+            "symbolSize": 8,
+            "data": [[60, 20, 80],[40, 30, 70]]
+        },
+        {
+            "name":"scatter2",
+            "type":"scatter",
+            "symbolSize": 7,
+            "data": [[20, 20, 40],[30, 30,90]]
+        }
+    ]
+}
