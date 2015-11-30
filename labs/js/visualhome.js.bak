@@ -1,0 +1,248 @@
+﻿function getFileURL(node) {
+    var fileURL = "";
+   
+    try {
+        var file = null;
+        if (node.files && node.files[0]) {
+            file = node.files[0];
+        } else if (node.files && node.files.item(0)) {
+            file = node.files.item(0);
+        }
+	
+        try {
+            //Firefox7.0 
+            fileURL = file.getAsDataURL();
+            //alert("//Firefox7.0"+fileURL);             			
+        } catch (e) {
+            //Firefox8.0               			
+            fileURL = window.URL.createObjectURL(file);
+        }
+    } catch (e) {
+
+        if (node.files && node.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                fileURL = e.target.result;
+            };
+            reader.readAsDataURL(node.files[0]);
+        }
+    }
+    var dotIdx = file.name.lastIndexOf(".");  
+    var filesuffix = file.name.substr(dotIdx+1);  
+    console.log(filesuffix);
+    var res = new Array(filesuffix, fileURL);
+    return res;
+}
+
+function checkCSVFormat(iNum){
+    var gType = getGraphName();
+    if(gType=="bar"){
+        if(iNum < 3){
+            alert("您选择的图形需要的CSV行序列小于2！");
+        }
+    }
+    else if(gType=="line"){
+        if(iNum < 2){
+            alert("您选择的图形需要的CSV行序列小于2！");
+        }
+    }
+    else{
+        
+    }  
+}
+
+function checkJSONFormat(gType){
+	  if(gType != getGraphName())
+    {
+        alert("您选择的图形展示类型与JSON文件格式不匹配！");
+    }
+}
+
+function getGraphName(){
+      var x = document.getElementById("charttype");
+      return x.options[x.selectedIndex].value;
+}
+
+function getGraphType(name){
+	return name.replace(/\d+/, "");
+}
+
+function parseJson(fileURL) {
+    console.log(fileURL);
+    $.getJSON(fileURL, function (data) {
+             checkJSONFormat(data.type);
+             console.log(data);
+             paintGraph(data);
+            //after方法:在每个匹配的元素之后插入内容。
+
+    });
+}
+
+
+function parseCsv(fileURL) {
+    console.log(fileURL);
+    var csv = d3.dsv(",", "text/csv;charset=gb2312");
+    //var tsv = d3.dsv("	", "text/tab-separated-values;charset=gb2312");
+    var option = new Object();
+    csv(fileURL, function (error, rows) {
+        console.log("文件数据展示如下：");
+        console.log(rows);
+        checkCSVFormat(rows.length);
+        var timeList = new Array();
+        var aline;
+
+        aline = new Array();
+        for (var i in rows[0]) {
+            timeList.push(i);
+            aline.push(rows[0][i]);
+        }
+        option.xAxis = [
+                {
+                    data: timeList
+                }
+        ]
+   
+        option.series = [];
+        option.series.push({
+            name: 1,
+            data: aline
+        });
+        for (var i = 1; i < rows.length; i++) {
+            aline = new Array();
+            for (var j in rows[i]) {
+                aline.push(rows[i][j]);
+            }
+            option.series.push({
+                name: i+1,
+                data: aline
+            });
+        }
+       
+        option.type =getGraphName();
+        console.log(option);
+        paintGraph(option);
+    });
+}
+
+
+function paintGraph(option) {
+    
+    $(".configpage").hide();
+    $(".container").show();
+    option.type = getGraphType(option.type);
+    console.log(option.type);
+    option.calculable = true;
+    option.series[0].type = option.type;
+    console.log("map");
+    console.log(option);
+    option.toolbox = {
+        show: true,
+        feature: {
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            // magicType: { show: true, type: chartType },
+            restore: { show: true },
+            saveAsImage: { show: true }
+        }
+    };
+    if("bar" == option.type ||
+	"line" == option.type){
+        var legends = new Array();
+        $.each(option.series, function (i, item) {
+            item.type = option.type;
+            legends.push(item.name);
+        });
+        option.legend = {
+            data: legends
+        };
+        $.each(option.xAxis, function (i, item) {
+            item.type = 'category';
+        });
+        option.tooltip = {
+            trigger: 'axis'
+        };
+       
+        option.yAxis = [
+                {
+                    type: 'value',
+                    splitArea: { show: true }
+                }
+        ];
+    } else if ("pie" == option.type
+       ) {
+        var legends = new Array();
+        $.each(option.series[0].data, function (i, item) {
+            item.type = option.type;
+            legends.push(item.name);
+        });
+        option.legend = {
+            data: legends
+        };
+        option.legend.orient = 'vertical';
+        option.legend.x = 'left';
+        option.tooltip = {
+            "trigger": 'item',
+            "formatter": "{a} <br/>{b} : {c} ({d}%)"
+        };
+        option.title.x = 'center';
+        console.log(option.title.text);
+        option.series[0].name = option.title.text;
+        
+        option.series[0].center = ['50%', '60%'];
+        option.series[0].radius = '55%';
+    } else if ("radar" == option.type) {
+        option.tooltip = {
+            trigger: 'axis'
+        };
+        var legends = new Array();
+        $.each(option.series[0].data, function (i, item) {
+            item.type = option.type;
+            legends.push(item.name);
+        });
+        option.legend = {
+            orient: 'vertical',
+            x: 'right',
+            y: 'bottom',
+            data: legends
+        };
+    } else if ("funnel" == option.type) {
+        option.tooltip = {
+            "trigger": "item",
+            "formatter": "{a} <br/>{b} : {c}%"
+        }
+        var legends = new Array();
+        $.each(option.series[0].data, function (i, item) {
+            item.type = option.type;
+            legends.push(item.name);
+        });
+        option.legend = {
+            data: legends
+        };
+    }
+    else if ("force" == option.type) {
+        option.tooltip = {
+            trigger: 'item',
+            formatter: '{a} : {b}'
+        }
+    }
+    else if ("map" == option.type) {
+        //此处添加修改内容
+    }
+    else if ("scatter" == option.type) {
+        //此处添加修改内容
+    }
+        
+    console.log(option);
+  
+
+    require(
+        [
+            'echarts',
+             'echarts/chart/'+ option.type
+        ],
+        function (ec) {
+            var myChart = ec.init(document.getElementById('main'));
+            myChart.setOption(option);
+        }
+    )
+}

@@ -1,0 +1,42 @@
+﻿{
+    "type" :  "funnel",
+    "title": {
+        "text": "漏斗图",
+        "subtext": "纯属虚构"
+    },
+    "series": [
+        {
+            "name": "漏斗图",
+            "type": "funnel",
+            "width": "40%",
+            "data": [
+                { "value": 60, "name": "访问" },
+                { "value": 40, "name": "咨询" },
+                { "value": 20, "name": "订单" },
+                { "value": 80, "name": "点击" },
+                { "value": 100, "name": "展现" }
+            ]
+        },
+        {
+            "name": "金字塔",
+            "type": "funnel",
+            "x": "50%",
+            "sort": "ascending",
+            "itemStyle": {
+                "normal": {
+                    "label": {
+                        "position": "left"
+                    }
+                }
+            },
+            "data": [
+                { "value": 60, "name": "访问" },
+                { "value": 40, "name": "咨询" },
+                { "value": 20, "name": "订单" },
+                { "value": 80, "name": "点击" },
+                { "value": 100, "name": "展现" }
+            ]
+        }
+    ]
+}
+                    
