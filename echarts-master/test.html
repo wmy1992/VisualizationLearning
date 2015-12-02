@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8">
+	<title>ECharts</title>
+	<!-- 来自百度CDN -->
+	<!--<script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-6-10/esl.js"></script>-->
+	<link href="./doc/asset/css/bootstrap.css" rel="stylesheet">
+	<link href="./doc/asset/css/google-code-prettify.css" rel="stylesheet">
+	<link href="./doc/asset/css/echartsHome.css" rel="stylesheet">
+	<script src="./doc/asset/js/esl/esl.js"></script>
+	<script src="./doc/asset/js/jquery.min.js"></script>
+</head>
+<body onload="prettyPrint();">
+	<!-- Fixed navbar -->
+	<div class="navbar navbar-default navbar-fixed-top" role="navigation" id="head"></div>
+	<div class="row-fluid" style="margin: 0px auto; max-width:1000px">
+		<div class="span9 offset3">
+			<div class="row-fluid text-center text-info" style="padding: 20px 0px;">
+				<p class="lead">本项目git为<a href="https://coding.net/u/hainuo/p/echarts/git" target="_blank"> ECharts in Coding.Net</a></p>
+				<p class="lead">ECharts 项目版本号为2.02 zrender 项目版本号也是2.02</p>
+				<p class="lead">大家可以通过直接下载项目根目录下的src文件夹和zrender文件夹以及 本文件test.html 就可以直接模块化使用ECharts了。</p>
+				<p class="lead"> 当然建议esl文件使用百度的cdn 1.8.2</p>
+				<p class="lead">不好意思这里的更新忘记提交了，大家可以先参照https://github.com/ecomfe/zrender/issues/81  这里进行更新和修复</p>
+<pre class="prettyprint text-left"><xmp>
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+    <!-- 来自百度CDN -->
+	<script src="http://s1.bdstatic.com/r/www/cache/ecom/esl/1-8-2/esl.js"></script>
+    <!--<script src="./doc/asset/js/esl/esl.js"></script>   <!-- 这就是百度efe团队的require组件 包括大部分amd的东西 生产环境建议用上面的cdn包加快加载速度 -->-->
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:400px"></div><!--ECharts就是在这个层里面调用zrender画东西 -->
+    <script type="text/javascript">
+        // 路径配置
+        require.config({ // 路径配置  其实就是把告诉esl.js相关的文件路径去哪里找
+            packages: [
+                {
+                    name: 'echarts',
+                    location: './src',//这里与目录有关，这个./src的意思就是到本文件的所在目录下的src目录下查找
+                    main: 'echarts'
+                },
+                {
+                    name: 'zrender',
+                    location: './zrender',
+                    main: 'zrender'
+                }
+            ]
+        });
+        var optionBar ={   //数据生成模式
+		    title : {
+		        text: '业绩对比图',
+		        subtext: '含客户数量'
+		    },
+	        tooltip: {
+	            show: true
+	        },
+		    toolbox: {  //工具栏
+		        show : true,
+		        feature : {
+		            mark : {show: true},
+		            dataView : {show: true, readOnly: false},//查看数据
+		            magicType : {show: true, type: ['line', 'bar']},//支持的图标模式
+		            restore : {show: true},//刷新图层
+		            saveAsImage : {
+                        show : true,
+                        title : '保存为图片',
+                        type : 'jpeg',
+                        lang : ['点击本地保存']
+		            }//保存图像
+		        }
+		    },
+		    calculable : true,	        
+	        legend: {
+	            data:['业绩','客户量']//定义Y轴有几个参考量  或者说 每一个点对应几个数值
+	        },
+	        xAxis : [
+	            {
+	                type : 'category',
+	                data : ["张三","李四","王五","天六","冯八","亓九"]
+	            }
+	        ],
+	        yAxis : [
+	            {
+	                type : 'value',
+	                splitArea : {show : true}
+	            }
+	        ],
+	        series : [
+	            {
+	                "name":"业绩(万)",
+	                "type":"bar",
+	                "data":[50, 20, 40, 100, 81, 28],
+	                markLine : {
+		                data : [
+		                    {type : 'average', name: '平均值'}
+		                ]
+		            },
+		            markPoint : {
+		                data : [
+		                    {type : 'max', name: '最大值'},
+		                    {type : 'min', name: '最小值'}
+		                ]
+		            },		            
+	            },
+	            {
+	                "name":"客户量",
+	                "type":"bar",
+	                "data":[10, 20, 30, 25, 15, 20],
+	                markLine : {
+		                data : [
+		                    {type : 'average', name: '平均值'}
+		                ]
+		            },
+		            markPoint : {
+		                data : [
+		                    {type : 'max', name: '最大值'},
+		                    {type : 'min', name: '最小值'}
+		                ]
+		            },
+	            }                        
+	        ],
+	    };
+		var idx=10;
+		var optionPie = {
+		    timeline : {
+		        data : [
+		            '2013-01-01', '2013-02-01', '2013-03-01', '2013-04-01', '2013-05-01',  
+		            { name:'2013-06-01', symbol:'emptyStar6', symbolSize:8 },//每个阶段可以指定一些特殊标记 这里标记6月份
+		            '2013-07-01', '2013-08-01', '2013-09-01', '2013-10-01', '2013-11-01',
+		            { name:'2013-12-01', symbol:'star6', symbolSize:8 } //这里是标记年终12月份
+		        ],
+		        label : {
+		            formatter : function(s) {
+		                return s.slice(0, 7);
+		            }
+		        }
+		    },
+		    options : [
+		        {
+		            title : {
+		                text: '客户量统计图',
+		                subtext: '地区分布图'
+		            },
+		            tooltip : {
+		                trigger: 'item',
+		                formatter: "{a} <br/>{b} : {c} ({d}%)"
+		            },
+		            legend: {
+		                data:['市南区','市北区','市中区','胶南区','汶源市']
+		            },
+		            toolbox: {  //工具栏
+		                show : true,
+		                feature : {
+		                    mark : {show: true},
+		                    dataView : {show: true, readOnly: false},
+		                    restore : {show: true},
+		                    saveAsImage : {show: true}
+		                }
+		            },
+		            series : [
+		                {
+		                    name:'2013-01客户分布图',
+		                    type:'pie',
+		                    center: ['50%', '45%'],
+		                    radius: '50%',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ],
+		                    itemStyle : {
+				                normal : {
+				                    label : {
+				                        position : 'inner',
+				                        formatter : function (a,b,c,d) {return b+" "+c/*+" "+(d - 0).toFixed(0) + '%'*/}
+				                    },
+				                    labelLine : {
+				                        show : false,
+				                    }
+				                },
+				                emphasis : {
+				                    label : {
+				                        show : true,
+				                        formatter : "{b}  {d}%"
+				                    }
+				                }
+				                
+				            }
+			            },
+			        
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-02客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx*1.5 * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-03客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx/2 * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-04客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx/4 * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-05客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-06客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-07客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-08客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-09客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-10客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-11客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-12客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        }
+		    ]//options结束
+		};
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar', // 使用柱状图就加载bar模块柱状图，按需加载  到echarts所在目录的 这里的echarts就是上面定义路径时的name
+                'echarts/chart/line', // 使用柱状图就加载line模块线状图
+                'echarts/chart/pie', // 使用柱状图就加载pie模块饼状图
+                //'echarts/component/toolbox', // 使用柱状图就加载pie模块饼状图
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChartBar = ec.init(document.getElementById('main')); 
+                var myChartPie = ec.init(document.getElementById('mainPie')); 
+                // 为echarts对象加载数据 
+                myChartBar.setOption(optionBar); 
+                myChartPie.setOption(optionPie); 
+            }
+        );        
+    </script>
+</body>	</xmp>
+</pre>
+			</div>
+			<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+			<div id="main" style="height:400px"></div> 
+			<div id="mainBar" style="height:400px"></div> 
+			<div id="mainPie" style="height:400px"></div> 			
+		</div>
+	</div>
+	    <!-- FOOTER -->
+    <footer id="footer"></footer>
+	<script type="text/javascript">
+		// 路径配置
+		        require.config({
+		            packages: [
+		                {
+		                    name: 'echarts',
+		                    location: './src',
+		                    main: 'echarts'
+		                },
+		                {
+		                    name: 'zrender',
+		                    //location: 'http://ecomfe.github.io/zrender/src',
+		                    location: './zrender',
+		                    main: 'zrender'
+		                }
+		            ]
+		        });
+		        
+		var optionBar ={   //数据生成模式
+		    title : {
+		        text: '业绩对比图',
+		        subtext: '含客户数量'
+		    },
+	        tooltip: {
+	            show: true
+	        },
+		    toolbox: {  //工具栏
+		        show : true,
+		        feature : {
+		            mark : {show: true},
+		            dataView : {show: true, readOnly: false},//查看数据
+		            magicType : {show: true, type: ['line', 'bar']},//支持的图标模式
+		            restore : {show: true},//刷新图层
+		            saveAsImage : {
+                        show : true,
+                        title : '保存为图片',
+                        type : 'jpeg',
+                        lang : ['点击本地保存']
+		            }//保存图像
+		        }
+		    },
+		    calculable : true,	        
+	        legend: {
+	            data:['业绩','客户量']//定义Y轴有几个参考量  或者说 每一个点对应几个数值
+	        },
+	        xAxis : [
+	            {
+	                type : 'category',
+	                data : ["张三","李四","王五","天六","冯八","亓九"]
+	            }
+	        ],
+	        yAxis : [
+	            {
+	                type : 'value',
+	                splitArea : {show : true}
+	            }
+	        ],
+	        series : [
+	            {
+	                "name":"业绩(万)",
+	                "type":"bar",
+	                "data":[50, 20, 40, 100, 81, 28],
+	                markLine : {
+		                data : [
+		                    {type : 'average', name: '平均值'}
+		                ]
+		            },
+		            markPoint : {
+		                data : [
+		                    {type : 'max', name: '最大值'},
+		                    {type : 'min', name: '最小值'}
+		                ]
+		            },		            
+	            },
+	            {
+	                "name":"客户量",
+	                "type":"bar",
+	                "data":[10, 20, 30, 25, 15, 20],
+	                markLine : {
+		                data : [
+		                    {type : 'average', name: '平均值'}
+		                ]
+		            },
+		            markPoint : {
+		                data : [
+		                    {type : 'max', name: '最大值'},
+		                    {type : 'min', name: '最小值'}
+		                ]
+		            },
+	            }                        
+	        ],
+	    };
+		var idx=10;
+		var optionPie = {
+		    timeline : {
+		        data : [
+		            '2013-01-01', '2013-02-01', '2013-03-01', '2013-04-01', '2013-05-01',  
+		            { name:'2013-06-01', symbol:'emptyStar6', symbolSize:8 },//每个阶段可以指定一些特殊标记 这里标记6月份
+		            '2013-07-01', '2013-08-01', '2013-09-01', '2013-10-01', '2013-11-01',
+		            { name:'2013-12-01', symbol:'star6', symbolSize:8 } //这里是标记年终12月份
+		        ],
+		        label : {
+		            formatter : function(s) {
+		                return s.slice(0, 7);
+		            }
+		        }
+		    },
+		    options : [
+		        {
+		            title : {
+		                text: '客户量统计图',
+		                subtext: '地区分布图'
+		            },
+		            tooltip : {
+		                trigger: 'item',
+		                formatter: "{a} <br/>{b} : {c} ({d}%)"
+		            },
+		            legend: {
+		                data:['市南区','市北区','市中区','胶南区','汶源市']
+		            },
+		            toolbox: {  //工具栏
+		                show : true,
+		                feature : {
+		                    mark : {show: true},
+		                    dataView : {show: true, readOnly: false},
+		                    restore : {show: true},
+		                    saveAsImage : {show: true}
+		                }
+		            },
+		            series : [
+		                {
+		                    name:'2013-01客户分布图',
+		                    type:'pie',
+		                    center: ['50%', '45%'],
+		                    radius: '50%',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ],
+		                    itemStyle : {
+				                normal : {
+				                    label : {
+				                        position : 'inner',
+				                        formatter : function (a,b,c,d) {return b+" "+c/*+" "+(d - 0).toFixed(0) + '%'*/}
+				                    },
+				                    labelLine : {
+				                        show : false,
+				                    }
+				                },
+				                emphasis : {
+				                    label : {
+				                        show : true,
+				                        formatter : "{b}  {d}%"
+				                    }
+				                }
+				                
+				            }
+			            },
+			        
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-02客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx*1.5 * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-03客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx/2 * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-04客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx/4 * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-05客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-06客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-07客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-08客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-09客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-10客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-11客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        },
+		        {
+		            series : [
+		                {
+		                    name:'2013-12客户分布图',
+		                    type:'pie',
+		                    data:[
+		                        {value: idx++ * 128 +idx * 80,  name:'市南区'},
+		                        {value: idx * 64  +idx /2* 160,  name:'市北区'},
+		                        {value: idx * 32  + 320,  name:'市中区'},
+		                        {value: idx * 16  + 640,  name:'胶南区'},
+		                        {value: idx++ * 8  + 1280, name:'汶源市'}
+		                    ]
+		                }
+		            ]
+		        }
+		    ]//options结束
+		};
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar', // 使用柱状图就加载bar模块柱状图，按需加载  到echarts所在目录的 这里的echarts就是上面定义路径时的name
+                'echarts/chart/line', // 使用柱状图就加载line模块线状图
+                'echarts/chart/pie', // 使用柱状图就加载pie模块饼状图
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChartBar = ec.init(document.getElementById('main')); 
+                var myChartPie = ec.init(document.getElementById('mainPie')); 
+                // 为echarts对象加载数据 
+                myChartBar.setOption(optionBar); 
+                myChartPie.setOption(optionPie); 
+            }
+        );        		        
+	</script>
+	<script type="text/javascript" src="./doc/asset/js/echartsHome.js"></script>
+	<script src="./doc/asset/js/bootstrap.min.js"></script>
+	<script src="./doc/asset/js/google-code-prettify.js"></script>
+</body>
